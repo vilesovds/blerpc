@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Math is fun?!</title>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script type="text/javascript" src="jquery.jsonrpcclient.js"></script>
+        <script type="text/javascript">
+            function scan_success_cb(result) { console.log('answered: ' + result.name);
+               result.forEach(function(item, index, array) {
+                   console.log(item.address+': '+item.name);
+               });
+            }
+            function error_cb(error)  { console.log('There was an error', error); }
+            $(document).ready(function() {
+               var foo = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: 'ws://localhost:5000/' });
+               foo.call('scan',[10], scan_success_cb, error_cb);
+            });
+       </script>
+    </head>
+    <body>
+        <p id="result"></p>
+        <p>
+            <textarea name="logarea" id="logarea"></textarea>
+        </p>
+        <p>
+            <input name="evaluate" id="evaluate" value="evaluate" type="button" />
+        </p>
+    </body>
+</html>
