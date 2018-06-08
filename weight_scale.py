@@ -88,11 +88,19 @@ def parce_weight(data):
 @methods.add
 def mi_scale_get_weight_data(timeout,context):
     requester = context.requester
-    try:
-        data = requester.indications_queue.get(block=True, timeout=timeout)
-        return parce_weight(data)
-    except Empty:
-        return 'None'
+    results = []
+    while(True):
+        try:
+            data = requester.indications_queue.get(block=True, timeout=timeout)
+            parced  = parce_weight(data)
+            results.append(parced)
+            print(parced)
+        except Empty:
+            break;
+    if 0 ==len(results):
+       return 'None'
+    else:
+       return results 
     
 @methods.add
 def mi_scale_start_indication(address, context):
