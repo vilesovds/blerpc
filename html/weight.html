@@ -52,7 +52,7 @@
 				LOG('Done');
 				if ('OK'==result){
 					LOG("Встаньте на весы");
-					setTimeout(get_weight_data, 3000,3000, 2);
+					get_weight_data( 3000, 0.5);
 					
 				}else{
 					LOG("Set indication error");
