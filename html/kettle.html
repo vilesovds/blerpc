@@ -6,84 +6,147 @@
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script type="text/javascript" src="jquery.jsonrpcclient.js"></script>
-	<script>
-        var ws_host = "ws://192.168.0.106:5000/";
-
-		    var rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
-
+		<script type="text/javascript">
+			var ws_host = "ws://192.168.0.106:5000/";
+			var rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
 			var selected_device ='';
-
 			var getting_data = false;
-
 			var stable_result = null;
-
 			function LOG(somedata){
-
 				console.log(somedata);
-
 				$("#logarea").val(somedata);
-
 			}
-        function scan_success_cb(result) {
+			function scan_success_cb(result) {
 				var items = [];
 				var name_id= '';
 				LOG('Done')
 				$(':input[id="scan_btn"]').prop('disabled', false);
 				result.forEach(function(item, index, array) {
-                    //LOG(item.address+': '+item.name);
+				//LOG(item.address+': '+item.name);
 					name_id = 'device-'+index;
 					items.push('<label for="'+name_id+'">'+item.address+': '+item.name+'</label><input type="radio" name="'+name_id+'" id="'+name_id+'" value="'+item.address+'">')
 				});
 
-				$('#devices_field').empty().html(items.join(""));
-            }
+					$('#devices_field').empty().html(items.join(""));
+			}
+			function get_temp_cb(result){
+				
+				console.log(result);
+				if(result!='None'){
+					$("#dataarea").val(result);
+				}
+			}
+			function get_temp_data(timeinterval, timeout){
+				if(getting_data){
+					rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+					rpc.call('kettle_get_temp',[timeout], get_temp_cb, error_cb);
+					//mi_scale_get_weight_data
+					LOG("Get data");
+					setTimeout(get_temp_data, timeinterval,timeinterval, timeout);
+				}
+			}
+			function start_getting_temp(){
+				LOG("принимаем данные");
+				getting_data = true;
+				setTimeout(get_temp_data, 3000,3000, 2);
 
-            function error_cb(error)  {LOG('There was an error', error); }
+			}
+			function kettle_auth_cb(result){
+				LOG('DONE')
+			    if(result == 'OK'){
+				    LOG('AUTH OK');
+					
+				}else{
+					LOG('AUTH ERROR');
+				}
+			}
+			function kettle_auth_not_cb(result){
+				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+				rpc.call('kettle_auth',[],kettle_auth_cb,error_cb);
+			}
+			function kettle_auth(){
+				
+				LOG('attempt to auth on'+ selected_device);
+				LOG('waiting...')
+				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+				rpc.call('kettle_start_notifications',[],kettle_auth_not_cb,error_cb);
+			}
+			function connect_cb(result){
+				LOG('Done');
+				if (result){
+					
+					kettle_auth();
+					//start_getting_temp();
+				}else{
+					LOG("Connection error");
+				}
+			}
+			function connect_device(){
+				selected_device = $("#devices_field input[type='radio']:checked").val();
+				LOG('Selected '+ selected_device);
+				LOG('waiting...')
+				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+				rpc.call('connect',[selected_device,5,2],connect_cb,error_cb);
+			}
+			function disconnect_cb(result){
+				LOG('Done');
+				LOG('Device disconnected');
+			}
+			function disconnect_device(){
+				LOG("Disconnecting...")
+				LOG('waiting...')
+				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+				rpc.call('disconnect',[], disconnect_cb, error_cb);
+			}
+			function error_cb(error)  {LOG('There was an error', error); }
 			function scan_devices(){
 				$(':input[id="scan_btn"]').prop('disabled', true);
 				LOG('waiting...')
-			    rpc.call('scan',[3], scan_success_cb, error_cb);
+				rpc.call('scan',[3], scan_success_cb, error_cb);
+			}
+			function heat_on_cb(result){
+				LOG('Done');
+				LOG('Включен');
+				start_getting_temp();
+			}
+			function heat_on(){
+				LOG('waiting...')
+				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+				rpc.call('kettle_heat_on',[], heat_on_cb, error_cb);
+			}
+			function stop_indication(){
+				getting_data = false;
 			}
         </script>
     </head>
-<body>
-	<div class="widget">
-        <p>
-            <input name="scan" id="scan_btn" value="Сканировать" type="button" onclick="scan_devices()" />
+	<body>
+		<div class="widget">
+			<p>
+				<input name="scan" id="scan_btn" value="Сканировать" type="button" onclick="scan_devices()" />
+			</p>
 
-        </p>
+			<fieldset id="devices_field">
+				<legend>Устройства</legend>
+			</fieldset>
 
+			<p>
+				<input name="connect" id="connect_btn" value="Подключиться" type="button" onclick="connect_device()" />
 
+				<input name="disconnect" id="disconnect_btn" value="Отключиться" type="button" onclick="disconnect_device()" />
+			</p>
 
-		<fieldset id="devices_field">
-
-    		<legend>Устройства</legend>
-
-
-		</fieldset>
-
-		<p>
-
-            <input name="connect" id="connect_btn" value="Подключиться" type="button" onclick="connect_device()" />
-
-			<input name="disconnect" id="disconnect_btn" value="Отключиться" type="button" onclick="disconnect_device()" />
-
-        </p>
-
-		<fieldset id="weight_field">
-
-			<legend>Данные</legend>
-
-			<input  type="text" name="dataarea" id="dataarea">
-
-			<p></p>
-
-			<input name="stopdata" id="stopdata_btn" value="Остановить" type="button" onclick="stop_indication()" />
-	</fieldset>
-	
-        <p>
-            <textarea name="logarea" id="logarea"></textarea>
-        </p>
-	</div>
+			<fieldset id="weight_field">
+				<legend>Данные</legend>
+				<input  type="text" name="dataarea" id="dataarea">
+				<p></p>
+				<input name="heateron" id="heateron_btn" value="Включить" type="button" onclick="heat_on()"/>
+				<input name="stopdata" id="stopdata_btn" value="Остановить" type="button" onclick="stop_indication()"/>
+			</fieldset>
+		
+			<p>
+				<textarea name="logarea" id="logarea"></textarea>
+			</p>
+		</div>
     </body>
 </html>
+
