@@ -7,7 +7,7 @@
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script type="text/javascript" src="jquery.jsonrpcclient.js"></script>
 		<script type="text/javascript">
-			var ws_host = "ws://192.168.0.106:5000/";
+			var ws_host = 'ws://'+location.hostname+':5000/';
 			var rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
 			var selected_device ='';
 			var getting_data = false;
