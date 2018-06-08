@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Math is fun?!</title>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script type="text/javascript" src="jquery.jsonrpcclient.js"></script>
+	<script>
+        var ws_host = "ws://192.168.0.106:5000/";
+
+		    var rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+
+			var selected_device ='';
+
+			var getting_data = false;
+
+			var stable_result = null;
+
+			function LOG(somedata){
+
+				console.log(somedata);
+
+				$("#logarea").val(somedata);
+
+			}
+        function scan_success_cb(result) {
+				var items = [];
+				var name_id= '';
+				LOG('Done')
+				$(':input[id="scan_btn"]').prop('disabled', false);
+				result.forEach(function(item, index, array) {
+                    //LOG(item.address+': '+item.name);
+					name_id = 'device-'+index;
+					items.push('<label for="'+name_id+'">'+item.address+': '+item.name+'</label><input type="radio" name="'+name_id+'" id="'+name_id+'" value="'+item.address+'">')
+				});
+
+				$('#devices_field').empty().html(items.join(""));
+            }
+
+            function error_cb(error)  {LOG('There was an error', error); }
+			function scan_devices(){
+				$(':input[id="scan_btn"]').prop('disabled', true);
+				LOG('waiting...')
+			    rpc.call('scan',[3], scan_success_cb, error_cb);
+			}
+        </script>
+    </head>
+<body>
+	<div class="widget">
+        <p>
+            <input name="scan" id="scan_btn" value="Сканировать" type="button" onclick="scan_devices()" />
+
+        </p>
+
+
+
+		<fieldset id="devices_field">
+
+    		<legend>Устройства</legend>
+
+
+		</fieldset>
+
+		<p>
+
+            <input name="connect" id="connect_btn" value="Подключиться" type="button" onclick="connect_device()" />
+
+			<input name="disconnect" id="disconnect_btn" value="Отключиться" type="button" onclick="disconnect_device()" />
+
+        </p>
+
+		<fieldset id="weight_field">
+
+			<legend>Данные</legend>
+
+			<input  type="text" name="dataarea" id="dataarea">
+
+			<p></p>
+
+			<input name="stopdata" id="stopdata_btn" value="Остановить" type="button" onclick="stop_indication()" />
+	</fieldset>
+	
+        <p>
+            <textarea name="logarea" id="logarea"></textarea>
+        </p>
+	</div>
+    </body>
+</html>
