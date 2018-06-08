@@ -2,34 +2,154 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Math is fun?!</title>
+        <title>Weight Scale</title>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
         <script type="text/javascript" src="jquery.jsonrpcclient.js"></script>
         <script type="text/javascript">
-		    var foo = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: 'ws://localhost:5000/' });
-            function scan_success_cb(result) { console.log('answered: ' + result.name);
-               result.forEach(function(item, index, array) {
-                   console.log(item.address+': '+item.name);
-               });
-            }
-            function error_cb(error)  { console.log('There was an error', error); }
-			function scan_devices(){
-			    foo.call('scan',[10], scan_success_cb, error_cb);
+			var ws_host = "ws://192.168.0.106:5000/";
+		    var rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+			var selected_device ='';
+			var getting_data = false;
+			var stable_result = null;
+			function LOG(somedata){
+				console.log(somedata);
+				$("#logarea").val(somedata);
 			}
-            $(document).ready(function() {
-               
-               
-            });
+			function stop_indication(){
+				getting_data = false;
+			}
+			function get_data_cb(result){
+				
+				console.log(result);
+				if(result!='None'){
+					for (var index=0;index<result.length;index++){
+						item = result[index]
+						console.log(item);
+						if ('Removed' == item.status){
+							stop_indication()
+							$("#dataarea").val(stable_result);
+							break;
+						}
+						if ('Stable' == item.status){
+							stable_result  = item.mass;
+						}
+						$("#dataarea").val(item.mass);
+					};
+				}
+			}
+			function get_weight_data(timeinterval, timeout){
+				if(getting_data){
+					rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+					rpc.call('mi_scale_get_weight_data',[timeout], get_data_cb, error_cb);
+					//mi_scale_get_weight_data
+					LOG("Get data");
+					setTimeout(get_weight_data, timeinterval,timeinterval, timeout);
+				}
+			}
+			function mi_scale_start_indication_cb(result){
+				LOG('Done');
+				if ('OK'==result){
+					LOG("Встаньте на весы");
+					setTimeout(get_weight_data, 3000,3000, 2);
+					
+				}else{
+					LOG("Set indication error");
+				}
+			}
+			function check_mi_scale(){
+				LOG('is_mi_scale '+ selected_device);
+				LOG('waiting...');
+				getting_data = true;
+				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+				rpc.call('is_mi_scale',[selected_device], is_mi_scale_cb, error_cb);
+			}
+			function connect_cb(result){
+				LOG('Done');
+				if (result){
+					
+					setTimeout(check_mi_scale, 100);
+					//check_mi_scale();
+				}else{
+					LOG("Connection error");
+				}
+			}
+			function is_mi_scale_cb(result){
+				LOG('Done');
+				if(result){
+					LOG("MI_SCALE found")
+					LOG('waiting...');
+					rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+					rpc.call('mi_scale_start_indication',[selected_device],mi_scale_start_indication_cb,error_cb);
+				}else{
+					LOG("It is not MI_SCALE device")
+				}
+				
+			}
+            function scan_success_cb(result) {
+				var items = [];
+				var name_id= '';
+				LOG('Done')
+				$(':input[id="scan_btn"]').prop('disabled', false);
+				result.forEach(function(item, index, array) {
+                    //LOG(item.address+': '+item.name);
+					name_id = 'device-'+index;
+					items.push('<label for="'+name_id+'">'+item.address+': '+item.name+'</label><input type="radio" name="'+name_id+'" id="'+name_id+'" value="'+item.address+'">')
+				});
+				$('#devices_field').empty().html(items.join(""));
+            }
+            function error_cb(error)  {LOG('There was an error', error); }
+			function scan_devices(){
+				$(':input[id="scan_btn"]').prop('disabled', true);
+				LOG('waiting...')
+			    rpc.call('scan',[3], scan_success_cb, error_cb);
+			}
+			function connect_device(){
+				selected_device = $("#devices_field input[type='radio']:checked").val();
+				LOG('Selected '+ selected_device);
+				LOG('waiting...')
+				//rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+				//rpc.call('connect',[selected_device],connect_cb,error_cb);
+				check_mi_scale();
+			}
+			function disconnect_cb(result){
+				LOG('Done');
+				LOG('Device disconnected');
+			}
+			function disconnect_device(){
+				LOG("Disconnecting...")
+				LOG('waiting...')
+				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
+				rpc.call('disconnect',[], disconnect_cb, error_cb);
+			}
        </script>
     </head>
     <body>
+	<div class="widget">
         <p>
             <input name="scan" id="scan_btn" value="Сканировать" type="button" onclick="scan_devices()" />
         </p>
-        <p id="result"></p>
+
+		<fieldset id="devices_field">
+			<legend>Устройства</legend>
+
+		</fieldset>
+		<p>
+            <input name="connect" id="connect_btn" value="Подключиться" type="button" onclick="connect_device()" />
+			<input name="disconnect" id="disconnect_btn" value="Отключиться" type="button" onclick="disconnect_device()" />
+        </p>
+		<fieldset id="weight_field">
+			<legend>Данные</legend>
+			<input  type="text" name="dataarea" id="dataarea">
+			<p></p>
+			<input name="stopdata" id="stopdata_btn" value="Остановить" type="button" onclick="stop_indication()" />
+		</fieldset>
+		
         <p>
             <textarea name="logarea" id="logarea"></textarea>
         </p>
+	</div>
     </body>
 </html>
+
