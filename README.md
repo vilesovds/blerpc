@@ -1,7 +1,8 @@
 # blerpc
+---------------------------------------
 bluetooth low energy with jsonrpc server
 # Dependencies
 ## tools
 gatttool
 ## python libs 
- pexpect, pygatt and websockets
+ pexpect, [pygatt](https://github.com/peplin/pygatt) and websockets
