@@ -1,13 +1,7 @@
 from jsonrpcserver import methods 
-from bleserver import GattRPCServer
+from bleserver2 import BleRPCServer
 import logging
 
 @methods.add 
-def scan(seconds,context):
-    ret = []
-    service = context.discoverservice 
-    devices = service.discover(seconds)
-    for address, name in list(devices.items()):
-        logging.debug("name: {}, address: {}".format(name, address))
-        ret.append({'address':address,'name':name})
-    return ret
+def scan(timeout,context): 
+    return context.adapter.scan(self, timeout=timeout, run_as_root=True):
