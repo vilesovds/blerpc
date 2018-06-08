@@ -63,7 +63,7 @@
 				LOG('waiting...');
 				getting_data = true;
 				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
-				rpc.call('is_mi_scale',[selected_device], is_mi_scale_cb, error_cb);
+				rpc.call('is_mi_scale',[], is_mi_scale_cb, error_cb);
 			}
 			function connect_cb(result){
 				LOG('Done');
