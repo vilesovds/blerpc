@@ -80,7 +80,7 @@
 					LOG("MI_SCALE found")
 					LOG('waiting...');
 					rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
-					rpc.call('mi_scale_start_indication',[selected_device],mi_scale_start_indication_cb,error_cb);
+					rpc.call('mi_scale_start_indication',[],mi_scale_start_indication_cb,error_cb);
 				}else{
 					LOG("It is not MI_SCALE device")
 				}
