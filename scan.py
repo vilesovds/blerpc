@@ -4,4 +4,4 @@ import logging
 
 @methods.add 
 def scan(timeout,context): 
-    return context.adapter.scan(self, timeout=timeout, run_as_root=True):
+    return context.adapter.scan(self, timeout=timeout, run_as_root=True)
