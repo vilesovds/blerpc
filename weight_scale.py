@@ -6,6 +6,7 @@ from datetime import datetime
 import logging
 
 WEIGHT_SCALE_UUID='0000181d-0000-1000-8000-00805f9b34fb'
+DEVICE_NAME_UUID='00002a00-0000-1000-8000-00805f9b34fb'
 MI_WEIGHT_SCALE_NAME='MI_SCALE'
 MI_SCALE_SERVICE_DESCRIPTOR_HANDLE = 0x20
 
@@ -28,7 +29,7 @@ def is_weight_scale(requester):
 def is_mi_scale(context):
     requester = context.device
     #get device name
-    data = requester.char_read("00002a00-0000-1000-8000-00805f9b34fb")
+    data = requester.char_read(DEVICE_NAME_UUID)
     logging.debug(data)
     try:
         name = data.decode("utf-8")
