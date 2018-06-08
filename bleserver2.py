@@ -9,7 +9,6 @@ class BleRPCServer(object):
     def __init__(self):
         self.adapter = pygatt.GATTToolBackend()
         self.adapter.start()
-        self.indications_queue=Queue()
         self.notifications_queue=Queue()
 
     def connect(address, timeout,type=BLEAddressType.random):
@@ -18,6 +17,9 @@ class BleRPCServer(object):
     def notify_enable(self,uuid):
         self.device.subscribe(uuid,callback=self.handle_data)
 
+    def indication_enable(self,uuid):
+        self.device.subscribe(uuid,callback=self.handle_data,indication=True)
+        
     def handle_data(self,handle, value):
         logging.debug("notification on handle: {}\n".format(handle))
         logging.debug('queueing data')

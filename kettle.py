@@ -17,7 +17,7 @@ HEAT_ON_CMD = 0x03
 GET_STATE_CMD = 0x06
 AUTH_CMD = 0xFF
 
-counter = 0 #commands counter
+counter = 0 #commands counter, increments after every one command
 
 def parce_temp(data):
     """ Get temperature from state answer bytes"""

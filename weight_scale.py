@@ -12,27 +12,24 @@ MI_SCALE_SERVICE_DESCRIPTOR_HANDLE = 0x20
 MI_SCALE_FLAG_UNITS = 0x01
 MI_SCALE_FLAG_DATETIME = 0x02
 MI_SCALE_FLAG_STABLE = 0x20
-
 MI_SCALE_FLAG_REMOVED = 0x80
+
 def is_weight_scale(requester):
     ret = False
-    primary = requester.discover_primary()
+    primary = requester.discover_characteristics()
     #find weight scale service
     for prim in primary:
+        logging.debug(prim)
         if WEIGHT_SCALE_UUID == prim['uuid']:
             ret = True
             break
     return ret
 @methods.add
-def is_mi_scale(address, context):
-    requester = context.requester
-    try:
-        requester.do_connect(address)
-    except RuntimeError:
-        raise ServerError()
-        return False 
+def is_mi_scale(context):
+    requester = context.device
     #get device name
-    data = requester.read_by_uuid("00002a00-0000-1000-8000-00805f9b34fb")[0]
+    data = requester.char_read("00002a00-0000-1000-8000-00805f9b34fb")
+    logging.debug(data)
     try:
         name = data.decode("utf-8")
     except AttributeError:
@@ -87,11 +84,10 @@ def parce_weight(data):
 
 @methods.add
 def mi_scale_get_weight_data(timeout,context):
-    requester = context.requester
     results = []
     while(True):
         try:
-            data = requester.indications_queue.get(block=True, timeout=timeout)
+            data = context.notifications_queue.get(block=True, timeout=timeout)
             parced  = parce_weight(data)
             results.append(parced)
             print(parced)
@@ -103,15 +99,8 @@ def mi_scale_get_weight_data(timeout,context):
        return results 
     
 @methods.add
-def mi_scale_start_indication(address, context):
-    requester = context.requester
-    try:
-        requester.do_connect(address)
-    except RuntimeError:
-        raise ServerError()
-        return False 
-    requester.set_interested_handle(0xFFFF)
-    #indication enable
-    requester.write16_by_handle(MI_SCALE_SERVICE_DESCRIPTOR_HANDLE,0x0002)
+def mi_scale_start_indication( context):
+    #subscribe
+    context.indication_enable(MI_SCALE_SERVICE_DESCRIPTOR_HANDLE)
     return 'OK'
 

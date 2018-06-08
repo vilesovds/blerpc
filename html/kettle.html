@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Math is fun?!</title>
+        <title>SkyKettle</title>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script>
         <script type="text/javascript" src="jquery.jsonrpcclient.js"></script>
@@ -27,7 +27,7 @@
 					items.push('<label for="'+name_id+'">'+item.address+': '+item.name+'</label><input type="radio" name="'+name_id+'" id="'+name_id+'" value="'+item.address+'">')
 				});
 
-					$('#devices_field').empty().html(items.join(""));
+				$('#devices_field').empty().html(items.join(""));
 			}
 			function get_temp_cb(result){
 				
