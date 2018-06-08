@@ -8,7 +8,6 @@ import logging
 WEIGHT_SCALE_UUID='00002a9d-0000-1000-8000-00805f9b34fb'
 DEVICE_NAME_UUID='00002a00-0000-1000-8000-00805f9b34fb'
 MI_WEIGHT_SCALE_NAME='MI_SCALE'
-MI_SCALE_SERVICE_DESCRIPTOR_HANDLE = 0x20
 
 MI_SCALE_FLAG_UNITS = 0x01
 MI_SCALE_FLAG_DATETIME = 0x02
@@ -65,15 +64,15 @@ def bleDataToDateTime(data):
 
 def parce_weight(data):
     status = 'Unstable'
-    flags = data[3]
+    flags = data[0]
     logging.debug('flags {:d}'.format(flags))
     if flags & MI_SCALE_FLAG_REMOVED : return {'status':'Removed'} #no 
     if flags & MI_SCALE_FLAG_DATETIME: #have datetime
-        datetimedata = data[6:13]
+        datetimedata = data[3:10]
     if flags & MI_SCALE_FLAG_STABLE: status = 'Stable'
     #get mass data
-    mass = data[4] #low byte
-    mass += data[5]<<8 #high byte
+    mass = data[1] #low byte
+    mass += data[2]<<8 #high byte
     if flags & MI_SCALE_FLAG_UNITS: # pound (lb) and inch (in) 
         wunits = "lb"
         mass = mass*0.01  
@@ -102,6 +101,6 @@ def mi_scale_get_weight_data(timeout,context):
 @methods.add
 def mi_scale_start_indication( context):
     #subscribe
-    context.indication_enable(MI_SCALE_SERVICE_DESCRIPTOR_HANDLE)
+    context.indication_enable(WEIGHT_SCALE_UUID)
     return 'OK'
 
