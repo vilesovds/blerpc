@@ -1,6 +1,6 @@
 import pygatt
 from jsonrpcserver import methods
-from bleserver2 import BleRPCServer
+from bleserver import BleRPCServer
 from pygatt.backends import BLEAddressType
 from scan import *
 from weight_scale import *
