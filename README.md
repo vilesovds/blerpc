@@ -1,6 +1,9 @@
 # blerpc
 ---------------------------------------
 bluetooth low energy with jsonrpc server
+## supported devices
+weight scale MI_SCALE,
+redmond skykettle g210s
 # Dependencies
 ## tools
 gatttool
