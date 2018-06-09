@@ -30,6 +30,7 @@
 						if ('Removed' == item.status){
 							stop_indication()
 							$("#dataarea").val(stable_result);
+							LOG("Removed")
 							break;
 						}
 						if ('Stable' == item.status){
@@ -109,7 +110,7 @@
 				LOG('waiting...')
 				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
 				//params: mac,timeout, secure: 1-public,2 - random
-				rpc.call('connect',[selected_device,5,1],connect_cb,error_cb);
+				rpc.call('connect',[selected_device,10,1],connect_cb,error_cb);
 				//check_mi_scale();
 			}
 			function disconnect_cb(result){
