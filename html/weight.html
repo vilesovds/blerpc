@@ -121,7 +121,7 @@
 				LOG("Disconnecting...")
 				LOG('waiting...')
 				rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
-				rpc.call('disconnect',[], disconnect_cb, error_cb);
+				rpc.call('disconnect',[selected_device], disconnect_cb, error_cb);
 			}
        </script>
     </head>
