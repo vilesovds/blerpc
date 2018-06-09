@@ -1,5 +1,5 @@
 from jsonrpcserver import methods
-from bleserver2 import *
+from bleserver import *
 from queue import Queue, Empty
 from datetime import datetime
 import logging
