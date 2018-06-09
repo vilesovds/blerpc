@@ -44,7 +44,6 @@
 					rpc = new $.JsonRpcClient({ ajaxUrl: '', socketUrl: ws_host });
 					rpc.call('mi_scale_get_weight_data',[timeout], get_data_cb, error_cb);
 					//mi_scale_get_weight_data
-					LOG("Get data");
 					setTimeout(get_weight_data, timeinterval,timeinterval, timeout);
 				}
 			}
