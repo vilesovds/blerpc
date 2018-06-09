@@ -25,8 +25,8 @@ def connect(address,timeout,type,context):
     return 'OK'
 
 @methods.add
-def disconnect(address,context):
-    context.adapter.disconnect(connected_device=address)
+def disconnect(context):
+    context.adapter.disconnect(connected_device=context.device)
     return True
 
 @asyncio.coroutine    
