@@ -93,7 +93,7 @@
 				result.forEach(function(item, index, array) {
                     //LOG(item.address+': '+item.name);
 					name_id = 'device-'+index;
-					items.push('<label for="'+name_id+'">'+item.address+': '+item.name+'</label><input type="radio" name="'+name_id+'" id="'+name_id+'" value="'+item.address+'">')
+					items.push('<p><label for="'+name_id+'">'+item.address+': '+item.name+'</label><input type="radio" name="'+name_id+'" id="'+name_id+'" value="'+item.address+'"></p>')
 				});
 				$('#devices_field').empty().html(items.join(""));
             }
