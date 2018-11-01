@@ -1,6 +1,6 @@
 # blerpc
 ---------------------------------------
-bluetooth low energy with jsonrpc server
+This is jsonrpc server for access to bluetooth low energy devices
 ## supported devices
 weight scale MI_SCALE,
 redmond skykettle g210s

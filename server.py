@@ -29,7 +29,7 @@ def disconnect(context):
     context.adapter.disconnect(connected_device=context.device)
     return True
 
-@asyncio.coroutine    
+@asyncio.coroutine
 def main(websocket, path):
     request = yield from websocket.recv()
     response = methods.dispatch(request,context=bleserver)
@@ -41,4 +41,3 @@ if __name__ == '__main__':
     start_server = websockets.serve(main, '0.0.0.0', 5000)
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()
-
